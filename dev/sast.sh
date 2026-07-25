@@ -84,9 +84,11 @@ for target in "${TARGETS[@]}"; do
         ;;
 
     npm-audit)
+        # audit-ci instead of raw `npm audit`: it honors the documented
+        # allowlist in each tree's audit-ci.jsonc (npm audit cannot ignore).
         for dir in ui e2e website; do
             run_scan "npm audit ($dir)" docker run --rm -v "$REPO_ROOT/$dir:/app:ro" -w /app \
-                "$NODE_IMAGE" npm audit --audit-level=high
+                "$NODE_IMAGE" npx --yes 'audit-ci@^7' --config audit-ci.jsonc
         done
         ;;
 

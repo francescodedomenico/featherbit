@@ -112,8 +112,10 @@ jobs:
           sarif_file: gitleaks.sarif
           category: gitleaks
 
-  # npm dependency CVEs per lockfile tree (no install needed — audit reads the
-  # lockfile and queries the registry).
+  # npm dependency CVEs per lockfile tree (no install needed — the audit reads
+  # the lockfile and queries the registry). audit-ci instead of raw `npm audit`
+  # because it supports a documented allowlist (audit-ci.jsonc in each tree);
+  # plain npm audit has no ignore mechanism at all.
   npm-audit:
     name: npm audit (${{ matrix.dir }})
     runs-on: ubuntu-latest
@@ -126,7 +128,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm audit --audit-level=high
+      - run: npx --yes audit-ci@^7 --config audit-ci.jsonc
         working-directory: ${{ matrix.dir }}
 
   # Build the container image and scan it with both grype and trivy. The

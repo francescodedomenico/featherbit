@@ -102,10 +102,12 @@ foreach ($target in $Targets) {
         }
 
         'npm-audit' {
+            # audit-ci instead of raw `npm audit`: it honors the documented
+            # allowlist in each tree's audit-ci.jsonc (npm audit cannot ignore).
             foreach ($dir in @('ui', 'e2e', 'website')) {
                 Invoke-Scan "npm audit ($dir)" {
                     docker run --rm -v "${RepoRoot}/${dir}:/app:ro" -w /app $NodeImage `
-                        npm audit --audit-level=high
+                        npx --yes audit-ci@^7 --config audit-ci.jsonc
                 }.GetNewClosure()
             }
         }
